@@ -1,0 +1,282 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme="dark"] {
+  --bg-primary: #0F1117;
+  --surface-dark: #161A23;
+  --surface-card: #1C2130;
+  --surface-elevated: #232A3B;
+  --surface-light: #232A3B;
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --accent: #14B8B2;
+  --accent-hover: #0EA5A0;
+  --success: #22C55E;
+  --text-primary: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-muted: #64748B;
+  --neutral: #334155;
+  --danger: #F87171;
+  --border: rgba(255,255,255,0.07);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-chip: 20px;
+
+  --timing-fast: 120ms;
+  --timing-normal: 160ms;
+  --timing-slow: 220ms;
+}
+
+[data-theme="light"] {
+  --bg-primary: #F5F7FA;
+  --surface-dark: #EBEEF3;
+  --surface-card: #FFFFFF;
+  --surface-elevated: #F0F3F8;
+  --surface-light: #FFFFFF;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --accent: #0EA5A0;
+  --accent-hover: #0D9490;
+  --success: #22C55E;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #9CA3AF;
+  --neutral: #D1D5DB;
+  --danger: #EF4444;
+  --border: rgba(0,0,0,0.08);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.07), 0 4px 12px rgba(0,0,0,0.04);
+
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-chip: 20px;
+
+  --timing-fast: 120ms;
+  --timing-normal: 160ms;
+  --timing-slow: 220ms;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkMorph {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-slide-up {
+  animation: slideUp var(--timing-slow) ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--timing-normal) ease-out both;
+}
+
+.animate-check-morph {
+  animation: checkMorph var(--timing-fast) ease-out both;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring var(--timing-normal) ease-out;
+}
+
+input, textarea, button {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+textarea:focus, button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.surface-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: var(--radius-button);
+  transition: background var(--timing-fast) ease, transform var(--timing-fast) ease;
+  min-height: 48px;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  border-radius: var(--radius-button);
+  transition: background var(--timing-fast) ease, color var(--timing-fast) ease;
+  min-height: 48px;
+}
+
+.btn-ghost:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+.chip {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-chip);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  min-height: 40px;
+  white-space: nowrap;
+  transition: all var(--timing-fast) ease;
+}
+
+.chip:hover, .chip:active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFFFFF;
+  transform: scale(0.97);
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface-card);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  transition: all var(--timing-normal) ease;
+  min-height: 56px;
+}
+
+.item-row.checked {
+  opacity: 0.5;
+}
+
+.check-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--timing-fast) ease;
+  background: transparent;
+}
+
+.check-circle.checked {
+  background: var(--success);
+  border-color: var(--success);
+  animation: checkMorph var(--timing-fast) ease-out;
+}
+
+.check-circle.shopping {
+  width: 36px;
+  height: 36px;
+  border-width: 2.5px;
+}
+
+.progress-bar {
+  height: 4px;
+  background: var(--surface-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  border-radius: 2px;
+  transition: width var(--timing-slow) ease;
+}
+
+.presence-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--success);
+  border-radius: 50%;
+  border: 2px solid var(--surface-card);
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+}
