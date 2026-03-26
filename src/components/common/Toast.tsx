@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { Toast as ToastType } from '../../types';
 import { useApp } from '../../contexts/AppContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function ToastContainer() {
   const { toasts, removeToast } = useApp();
@@ -17,6 +18,8 @@ export default function ToastContainer() {
 }
 
 function ToastItem({ toast, onRemove }: { toast: ToastType; onRemove: () => void }) {
+  const { t } = useLanguage();
+
   function handleUndo() {
     toast.undoFn?.();
     onRemove();
@@ -30,13 +33,13 @@ function ToastItem({ toast, onRemove }: { toast: ToastType; onRemove: () => void
           onClick={handleUndo}
           className="text-accent text-sm font-semibold hover:text-accent/80 transition-colors shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
-          Rückgängig
+          {t.itemActions.undo}
         </button>
       )}
       <button
         onClick={onRemove}
         className="text-text-muted hover:text-text-secondary transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-        aria-label="Verwerfen"
+        aria-label={t.itemActions.dismiss}
       >
         <X className="w-4 h-4" />
       </button>

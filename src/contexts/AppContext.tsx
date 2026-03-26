@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import { useLanguage } from './LanguageContext';
 import { ShoppingList, Item, Template, TemplateItem, Toast } from '../types';
 
 interface ListMember {
@@ -57,6 +58,7 @@ function generateCode(): string {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [lists, setLists] = useState<ShoppingList[]>([]);
   const [activeList, setActiveListState] = useState<ShoppingList | null>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -166,7 +168,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       setListMemberRoles(prev => ({ ...prev, [listData.id]: 'member' }));
       setActiveListState(listData);
-      addToast(`Liste „${listData.name}" erfolgreich beigetreten`);
+      addToast(`${t.sharing.joinSuccess} „${listData.name}"`);
+    }
+  }
+
+  async function createDefaultList() {
+    if (!user) return;
+    const newId = crypto.randomUUID();
+    const { error } = await supabase.from('lists').insert({
+      id: newId,
+      name: t.lists.defaultListName,
+      created_by: user.id,
+    });
+    if (error) return;
+    await supabase.from('list_members').insert({
+      list_id: newId,
+      user_id: user.id,
+      role: 'owner',
+    });
+    const { data } = await supabase.from('lists').select('*').eq('id', newId).maybeSingle();
+    if (data) {
+      setLists([data]);
+      setActiveListState(data);
+      setListMemberRoles({ [data.id]: 'owner' });
     }
   }
 
@@ -177,6 +201,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .select('*')
       .order('created_at', { ascending: true });
     if (data) {
+      if (data.length === 0) {
+        await createDefaultList();
+        return;
+      }
       setLists(data);
       if (data.length > 0 && !activeList) {
         setActiveListState(data[0]);
@@ -297,7 +325,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       setItems(prev => prev.filter(i => i.id !== tempId));
-      addToast('Artikel konnte nicht hinzugefügt werden');
+      addToast(t.itemActions.errorAdd);
     } else if (data) {
       setItems(prev => prev.map(i => i.id === tempId ? data : i));
     }
@@ -324,14 +352,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('items').delete().eq('id', id);
     if (error && itemToDelete) {
       setItems(prev => [...prev, itemToDelete].sort((a, b) => a.position - b.position));
-      addToast('Artikel konnte nicht gelöscht werden');
+      addToast(t.itemActions.errorDelete);
     }
   }, [items]);
 
   const updateItem = useCallback(async (id: string, name: string, quantity: string) => {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, name, quantity } : i));
-    await supabase.from('items').update({ name, quantity, updated_at: new Date().toISOString() }).eq('id', id);
-  }, []);
+    const prev = items.find(i => i.id === id);
+    setItems(p => p.map(i => i.id === id ? { ...i, name, quantity } : i));
+    const { error } = await supabase.from('items').update({ name, quantity, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error && prev) {
+      setItems(p => p.map(i => i.id === id ? prev : i));
+      addToast(t.itemActions.errorUpdate);
+    }
+  }, [items]);
 
   const clearChecked = useCallback(async () => {
     if (!activeList) return;
@@ -388,10 +421,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [lists, activeList]);
 
   const renameList = useCallback(async (id: string, name: string) => {
+    const prevList = lists.find(l => l.id === id);
     setLists(prev => prev.map(l => l.id === id ? { ...l, name } : l));
     if (activeList?.id === id) setActiveListState(prev => prev ? { ...prev, name } : prev);
-    await supabase.from('lists').update({ name }).eq('id', id);
-  }, [activeList]);
+    const { error } = await supabase.from('lists').update({ name }).eq('id', id);
+    if (error && prevList) {
+      setLists(prev => prev.map(l => l.id === id ? prevList : l));
+      if (activeList?.id === id) setActiveListState(prevList);
+      addToast(t.lists.errorRename);
+    }
+  }, [activeList, lists]);
 
   const createTemplate = useCallback(async (name: string, itemNames: string[]) => {
     if (!user) return;
@@ -464,7 +503,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (data) {
         setItems(prev => [...prev, ...data].sort((a, b) => a.position - b.position));
       }
-      addToast(`Vorlage „${template.name}" angewendet — ${newItems.length} Artikel hinzugefügt`);
+      addToast(`„${template.name}" ${t.itemActions.templateApplied} — ${newItems.length} ${t.itemActions.templateItems}`);
     }
   }, [activeList, user, items]);
 

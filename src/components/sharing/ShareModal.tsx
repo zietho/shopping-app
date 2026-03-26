@@ -44,9 +44,13 @@ export default function ShareModal({ listId, listName, onClose }: ShareModalProp
 
   async function handleCopy() {
     if (!code) return;
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access denied — ignore silently, user can select the code manually
+    }
   }
 
   function getInviteLink() {
@@ -56,9 +60,13 @@ export default function ShareModal({ listId, listName, onClose }: ShareModalProp
 
   async function handleCopyLink() {
     if (!code) return;
-    await navigator.clipboard.writeText(getInviteLink());
-    setLinkCopied(true);
-    setTimeout(() => setLinkCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(getInviteLink());
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      // Clipboard access denied — ignore silently, user can copy the link manually
+    }
   }
 
   function handleWhatsApp() {

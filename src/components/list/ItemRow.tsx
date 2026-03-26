@@ -1,4 +1,4 @@
-import { useState, useRef, FormEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent } from 'react';
 import { Check, Trash, Pencil, X } from 'lucide-react';
 import { Item } from '../../types';
 import { useApp } from '../../contexts/AppContext';
@@ -27,6 +27,12 @@ export default function ItemRow({ item, selectionMode, selected, onLongPress, on
   const isDragging = useRef(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
+
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    };
+  }, []);
   const [swiping, setSwiping] = useState(false);
   const SWIPE_THRESHOLD = 80;
 

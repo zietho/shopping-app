@@ -38,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        (async () => { await loadProfile(session.user.id); })();
+        loadProfile(session.user.id);
       } else {
         setProfile(null);
         setLoading(false);
@@ -64,11 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      if (error.message.toLowerCase().includes('invalid login credentials') ||
-          error.message.toLowerCase().includes('user not found') ||
-          error.message.toLowerCase().includes('no user')) {
-        return { error: 'UNKNOWN_USER' };
-      }
+      // 400 = invalid credentials (Supabase intentionally returns same status for
+      // unknown user and wrong password to avoid user enumeration)
+      if (error.status === 400) return { error: 'UNKNOWN_USER' };
       return { error: 'WRONG_PASSWORD' };
     }
     return { error: null };

@@ -19,6 +19,8 @@
   - User IDs are fixed UUIDs for referencing in seeds.
 */
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 DO $$
 BEGIN
   -- Sara
@@ -32,7 +34,7 @@ BEGIN
       '00000000-0000-0000-0000-000000000000',
       'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
       'authenticated', 'authenticated', 'sara@demo.local',
-      crypt('saralovesshoppingtogether!', gen_salt('bf')),
+      extensions.crypt('saralovesshoppingtogether!', extensions.gen_salt('bf')),
       NOW(),
       '{"provider":"email","providers":["email"]}',
       '{"username":"sara"}',
@@ -62,7 +64,7 @@ BEGIN
       '00000000-0000-0000-0000-000000000000',
       'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
       'authenticated', 'authenticated', 'thomas@demo.local',
-      crypt('thomaslovesshoppingtogether!', gen_salt('bf')),
+      extensions.crypt('thomaslovesshoppingtogether!', extensions.gen_salt('bf')),
       NOW(),
       '{"provider":"email","providers":["email"]}',
       '{"username":"thomas"}',
